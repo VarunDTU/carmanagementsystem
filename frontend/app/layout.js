@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./providers/provider";
 
 export const metadata = {
-  title: "Library Management System",
+  title: "Car Management System",
   description: "Made by Varun Negi ",
 };
 
