@@ -1,6 +1,22 @@
 "use client";
 
-import { getCarById, updateCarById } from "@/app/events/severActions";
+import {
+  deleteCar,
+  getCarById,
+  updateCarById,
+} from "@/app/events/severActions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -11,11 +27,10 @@ import {
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PenIcon, Trash } from "lucide-react";
-import { useParams } from "next/navigation";
+import { PenIcon, Trash, Trash2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-
 export default function Page() {
   const carId = useParams().id;
   const [car, setCar] = useState(null);
@@ -66,6 +81,20 @@ export default function Page() {
     } catch (err) {
       toast.error(err.message);
       setLoading(false);
+    }
+  };
+  const router = useRouter();
+  const handleDelete = async () => {
+    try {
+      const res = await deleteCar(carId);
+
+      if (res.error) {
+        throw new Error(res.error);
+      }
+      router.push("/products");
+      toast.success("Car deleted successfully");
+    } catch (err) {
+      toast.error(err.message);
     }
   };
   if (!car) return <div>Loading...</div>;
@@ -120,10 +149,9 @@ export default function Page() {
           <section className={`${edit ? "border rounded" : ""}`}>
             <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
               <div className="flex  w-full justify-end">
-                <PenIcon
-                  className={`cursor-pointer p-1 ${
-                    edit ? "text-red-500" : "text-gray-500"
-                  }`}
+                <Button
+                  variant="outline"
+                  className="mx-2 "
                   onClick={() => {
                     setEdit(!edit);
                     setNewCar(car);
@@ -133,7 +161,38 @@ export default function Page() {
                       images: newCar.images.concat(removedImages),
                     });
                   }}
-                ></PenIcon>
+                >
+                  <PenIcon
+                    className={`cursor-pointer p-1 ${
+                      edit ? "text-red-500" : ""
+                    }`}
+                  ></PenIcon>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline">
+                      <Trash2></Trash2>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your account and remove your data from our
+                        servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
               <form
                 action="#"

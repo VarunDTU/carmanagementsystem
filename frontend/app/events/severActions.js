@@ -73,9 +73,9 @@ export async function updateCarById(id, data, uploadedImages, removedImages) {
       const url = new URL(urlString);
       const pathname = url.pathname;
       const parts = pathname.split("/");
-      const publicId = parts[parts.length - 1].split(".")[0]; // Split by '.' to remove extension
+      const publicId = parts[parts.length - 1].split(".")[0];
 
-      console.log(publicId); // Output: cr4mxeqx5zb8rlakpfkg
+      console.log(publicId);
       const result = await cloudinary.v2.uploader.destroy(publicId);
       data.images = data.images.filter((image) => image !== removedImages[i]);
     } catch (err) {
@@ -121,7 +121,7 @@ export async function addCar(data, images) {
       console.log("imagePaths", imagePaths);
     }
   } catch (err) {
-    return res.status(400).json({ error: err.message });
+    throw new Error(err.message);
   }
   try {
     const res = await fetch(`${backendUrl}/car/product`, {
@@ -143,4 +143,26 @@ export async function addCar(data, images) {
 
 export async function searchCars(keyword) {
   const res = await fetch(`${backendUrl}/car/search?keyword=${field}`);
+}
+
+export async function deleteCar(id) {
+  console.log("id", id);
+  const res = await fetch(`${backendUrl}/car/product/${id}`, {
+    method: "DELETE",
+  })
+    .then(async (res) => {
+      res = await res.json();
+      console.log("res", res);
+      for (var i = 0; i < res.images.length; i++) {
+        const urlString = res[i];
+        const url = new URL(urlString);
+        const pathname = url.pathname;
+        const parts = pathname.split("/");
+        const publicId = parts[parts.length - 1].split(".")[0];
+        console.log(publicId);
+        const result = await cloudinary.v2.uploader.destroy(publicId);
+      }
+    })
+    .catch((err) => err);
+  return res;
 }

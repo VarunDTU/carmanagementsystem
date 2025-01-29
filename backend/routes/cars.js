@@ -7,15 +7,14 @@ const carRoute = Router();
 
 carRoute.post("/product", async (req, res) => {
   try {
-    // const newCar = new Car(req.body);
-    // await newCar.save();
-    // res.status(201).json(newCar);
+    const newCar = new Car(req.body);
+    await newCar.save();
+    res.status(201).json(newCar);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// List Products API
 carRoute.get("/products/:userId", async (req, res) => {
   try {
     const cars = await Car.find({ owner: req.params.userId });
@@ -51,14 +50,14 @@ carRoute.put("/product/:id", async (req, res) => {
   }
 });
 
-// Delete Product API
 carRoute.delete("/product/:id", async (req, res) => {
   try {
     const result = await Car.findByIdAndDelete(req.params.id);
     if (!result) {
       return res.status(404).json({ message: "Car not found" });
     }
-    res.json({ message: "Car deleted" });
+    console.log(result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
