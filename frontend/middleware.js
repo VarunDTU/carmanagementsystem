@@ -4,6 +4,12 @@ export { default } from "next-auth/middleware";
 export async function middleware(request) {
   const token = await getToken({ req: request });
 
+  if (request.nextUrl.pathname.startsWith("/api/docs")) {
+    return NextResponse.redirect(
+      "https://documenter.getpostman.com/view/23327393/2sAYQiCo4f"
+    );
+  }
+
   if (
     !token &&
     !(
@@ -16,5 +22,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/products", "/product/:path"],
+  matcher: ["/products", "/product/:path", "/api/docs"],
 };
