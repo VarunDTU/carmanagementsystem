@@ -54,14 +54,15 @@ userRoute.post("/register", async (req, res) => {
     const prevUser = await User.findOne({ email: email }).select("email");
     const hashedPassword = await bycrpt.hash(password, 10);
     if (prevUser) throw new Error("User already exists");
-    const res = User.create({
+    const newUser = await User.create({
       email: email,
       password: hashedPassword,
     });
-    if (!res) return res.json({ error: "Error creating user" });
+    console.log(newUser);
+    if (!newUser) return res.json({ error: "Error creating user" });
     return res.json({ message: "User created successfully" });
   } catch (error) {
-    return res.json({ error: "Error creating user" });
+    return res.json(error.message);
   }
 });
 
