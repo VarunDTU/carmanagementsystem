@@ -1,8 +1,8 @@
 "use server";
 import cloudinary from "cloudinary";
 import { getServerSession } from "next-auth";
+import { z } from "zod";
 import { authOptions } from "../api/auth/[...nextauth]/route";
-
 const backendUrl = process.env.BACKEND_URL
   ? process.env.BACKEND_URL
   : "http://localhost:8000";
@@ -11,7 +11,12 @@ cloudinary.v2.config({
   secure: true,
 });
 export async function registerUser({ email, password }) {
+  const mySchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+  });
   try {
+    mySchema.parse({ email, password });
     const res = await fetch(`${backendUrl}/user/register`, {
       method: "POST",
       body: JSON.stringify({ email, password }),
@@ -19,10 +24,11 @@ export async function registerUser({ email, password }) {
         "Content-Type": "application/json",
       },
     });
-    if (!res || res.error) return { error: "Error creating user" };
+    if (!res || res.error)
+      throw new Error({ message: [{ message: res.error }] });
     return { success: "User created successfully" };
   } catch (error) {
-    return { error: error.message };
+    throw new Error(error.message);
   }
 }
 

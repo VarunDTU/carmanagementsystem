@@ -5,12 +5,15 @@ import { createServer } from "http";
 import path from "path";
 import carRoute from "./routes/cars.js";
 import userRoute from "./routes/user.js";
+import {getInsights} from "./utils/getInsights.js";
 const app = express();
 const port = 8000;
 
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
 };
+
+getInsights()
 app.use(cors(corsOptions));
 app.use(express.json());
 const server = createServer(app);
@@ -20,6 +23,8 @@ app.get("/", (req, res) => {
 });
 app.use("/user", userRoute);
 app.use("/car", carRoute);
+
+// ... existing code ... 
 app.get("/api/doc", (req, res) => {
   const __dirname = path.resolve(path.dirname(""));
   return res.sendFile("documentation.html", { root: __dirname });

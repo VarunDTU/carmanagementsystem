@@ -1,6 +1,7 @@
 import { Router } from "express";
 import mongoose from "mongoose";
 import { Car } from "../models/cars.js";
+import { Insight } from "../models/insight.js";
 
 mongoose.connect(process.env.MONGODB_URI, {});
 const carRoute = Router();
@@ -27,10 +28,17 @@ carRoute.get("/products/:userId", async (req, res) => {
 carRoute.get("/product/:id", async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
+    const insight = await Insight.findOne(
+      { carId: req.params.id },
+      "-_id marketInsights popularFeatures recommendations"
+    );
     if (!car) {
       return res.status(404).json({ message: "Car not found" });
     }
-    res.json(car);
+
+    const carData = { ...car._doc, insight: insight };
+    console.log(carData);
+    res.json(carData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

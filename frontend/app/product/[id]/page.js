@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PenIcon, Trash, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -47,20 +48,22 @@ export default function Page() {
     year: 0,
     tags: [],
     images: [],
+    marketInsights: "",
+    popularFeatures: "",
+    recommendations: "",
   });
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       await getCarById(carId)
         .then((res) => {
-          setCar(res);
           setNewCar(res);
+          console.log(res);
         })
-
         .catch((err) => toast.error(err.message));
     };
     fetchData();
-  }, []);
+  }, [edit]);
 
   const updateCar = async (e) => {
     e.preventDefault();
@@ -97,11 +100,11 @@ export default function Page() {
       toast.error(err.message);
     }
   };
-  if (!car) return <div>Loading...</div>;
+  if (!newCar) return <div>Loading...</div>;
   return (
-    <div className="w-full flex flex-row items-center justify-center">
+    <div className="w-full flex flex-col md:flex-row  items-center justify-center">
       <Toaster></Toaster>
-      <div className="w-1/2 p-10">
+      <div className="w-full md:w-1/2 md:p-10 p-20">
         <Carousel className="">
           {newCar.images.length < 1 ? (
             <CarouselContent>
@@ -117,22 +120,28 @@ export default function Page() {
                         <div
                           className={`w-full flex justify-end p-1 text-red-300 hover:text-red-500`}
                           onClick={() => {
-                            setRemovedImages([...removedImages, imageUrl]);
-                            var newImages = newCar.images;
-                            newImages.splice(index, 1);
-                            setNewCar({
-                              ...newCar,
-                              images: newImages,
+                            setRemovedImages((prev) => [...prev, imageUrl]);
+                            setNewCar((prev) => {
+                              prev.images.splice(index, 1);
+
+                              return { ...prev };
                             });
-                            console.log(car);
                           }}
                         >
                           <Trash></Trash>
                         </div>
                       ) : null}
 
-                      <CardContent className="flex aspect-square items-center justify-center p-6">
-                        <img src={imageUrl} className="w-full h-full"></img>
+                      <CardContent className="flex items-center justify-center">
+                        <div className="w-full h-96">
+                          <Image
+                            src={imageUrl}
+                            width={400}
+                            height={400}
+                            alt="car"
+                            className="w-full h-full  rounded"
+                          ></Image>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -144,22 +153,16 @@ export default function Page() {
           <CarouselNext />
         </Carousel>
       </div>
-      <div className="w-1/2">
+      <div className="w-full md:p-10 p-20 md:w-1/2">
         <div className="p-2">
           <section className={`${edit ? "border rounded" : ""}`}>
             <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-              <div className="flex  w-full justify-end">
+              <div className="flex  w-full justify-end py-2">
                 <Button
                   variant="outline"
                   className="mx-2 "
                   onClick={() => {
                     setEdit(!edit);
-                    setNewCar(car);
-                    const oldImages = newCar.images;
-                    setNewCar({
-                      ...newCar,
-                      images: newCar.images.concat(removedImages),
-                    });
                   }}
                 >
                   <PenIcon
@@ -215,7 +218,7 @@ export default function Page() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 py-2  gap-4 sm:grid-cols-2">
                     <div>
                       <label className="sr-only" htmlFor="email">
                         Dealer
@@ -274,7 +277,7 @@ export default function Page() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="pt-2">
                     <label className="sr-only" htmlFor="message">
                       Description
                     </label>
@@ -290,8 +293,47 @@ export default function Page() {
                       value={newCar.description}
                     ></textarea>
                   </div>
+                  <div className="pt-2">
+                    <label className="sr-only" htmlFor="car_type">
+                      Car Type
+                    </label>
 
-                  <div className="mt-4">
+                    <input
+                      className="w-full rounded-lg border-gray-200 p-3 text-sm"
+                      placeholder="Car Type"
+                      id="car_type"
+                      onChange={(e) => {
+                        setNewCar({ ...newCar, car_type: e.target.value });
+                      }}
+                      value={newCar.car_type}
+                    />
+                  </div>
+
+                  <div className="pt-2">
+                    <label
+                      className="font-medium text-lg mb-2 block"
+                      htmlFor="ai_insights"
+                    >
+                      AI Insights
+                    </label>
+
+                    <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 w-full">
+                      <p className="mb-2">
+                        <span className="font-semibold">Market Analysis:</span>{" "}
+                        {newCar.insight?.marketInsights || "Generating..."}
+                      </p>
+                      <p className="mb-2">
+                        <span className="font-semibold">Popular Features:</span>{" "}
+                        {newCar.insight?.popularFeatures || "Generating..."}
+                      </p>
+                      <p>
+                        <span className="font-semibold">Recommendation:</span>{" "}
+                        {newCar.insight?.recommendations || "Generating.."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 ">
                     {edit ? (
                       <div className="flex justify-between">
                         <button

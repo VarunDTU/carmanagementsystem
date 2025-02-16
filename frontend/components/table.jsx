@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, PlusCircle, Search } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 export function TablePublications({ TableData }) {
@@ -99,7 +100,15 @@ export function TablePublications({ TableData }) {
             {filterData.map((invoice) => (
               <TableRow key={invoice._id}>
                 <TableCell className="font-medium">
-                  <img src={invoice.images[0]} className="w-20 rounded"></img>
+                  <Image
+                    src={invoice.images[0]}
+                    width={100}
+                    height={100}
+                    alt="image"
+                    placeholder="blur"
+                    blurDataURL="/bluredcar.jpg"
+                    className="w-20 rounded"
+                  ></Image>
                 </TableCell>
                 <TableCell className="font-medium">{invoice.title}</TableCell>
                 <TableCell className="truncate max-w-32 pr-3">

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { registerUser } from "../events/severActions";
 export default function Signup() {
   const router = useRouter();
@@ -18,13 +19,15 @@ export default function Signup() {
         console.log("error", res.error);
         return;
       }
+      toast.success(res.success);
       router.push("/api/auth/signin");
     } catch (error) {
-      console.log("error", error);
+      toast.error(error.message);
     }
   };
   return (
     <div className="w-full flex justify-center items-center h-screen bg-slate-900 text-white">
+      <Toaster></Toaster>
       <div className="w-1/2 flex flex-col bg-slate-950  rounded-xl py-10">
         <h1 className="text-3xl text-center uppercase font-bold">Signup</h1>
         <div className="flex justify-center">
