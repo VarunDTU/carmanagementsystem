@@ -60,7 +60,10 @@ export default function Page() {
           setNewCar(res);
           console.log(res);
         })
-        .catch((err) => toast.error(err.message));
+        .catch((err) => {
+          toast.error(err.message);
+          router.push("/products");
+        });
     };
     fetchData();
   }, [edit]);

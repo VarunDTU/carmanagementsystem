@@ -26,18 +26,21 @@ carRoute.get("/products/:userId", async (req, res) => {
 });
 
 carRoute.get("/product/:id", async (req, res) => {
+  const userId = req.headers["authorization"];
+
   try {
-    const car = await Car.findById(req.params.id);
+    const car = await Car.findOne({ _id: req.params.id, owner: userId });
     const insight = await Insight.findOne(
       { carId: req.params.id },
       "-_id marketInsights popularFeatures recommendations"
     );
+
     if (!car) {
       return res.status(404).json({ message: "Car not found" });
     }
 
     const carData = { ...car._doc, insight: insight };
-    console.log(carData);
+
     res.json(carData);
   } catch (err) {
     res.status(500).json({ error: err.message });

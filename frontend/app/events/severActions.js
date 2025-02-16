@@ -45,9 +45,22 @@ export async function getAllCars() {
 }
 
 export async function getCarById(id) {
-  const res = await fetch(`${backendUrl}/car/product/${id}`)
-    .then((res) => res.json())
-    .catch((err) => err);
+  const session = await getServerSession(authOptions);
+  if (!session.user.id) throw new Error("Session Error");
+  const options = {
+    method: "GET",
+    headers: {
+      Authorization: session.user.id,
+    },
+  };
+  const res = await fetch(`${backendUrl}/car/product/${id}`, options)
+    .then((res) => {
+      if (res.ok) return res.json();
+      else throw new Error("Car not found");
+    })
+    .catch((err) => {
+      throw new Error(err.message);
+    });
   return res;
 }
 export async function updateCarById(id, data, uploadedImages, removedImages) {
